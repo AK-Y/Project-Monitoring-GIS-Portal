@@ -1,0 +1,17 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "name_of_work": "Test",
+      "physical_progress": null,
+      "financial_progress": null
+    },
+    {
+      "id": 2,
+      "name_of_work": "Special Repair of road of Asset ID 1083 (Sr. Secondary to ESI chowk), 1084 (ESI chowk to Chimni Bai) and 1087 (Chimni Bai to meat market), Faridabad\n",
+      "physical_progress": "70%",
+      "financial_progress": "55%"
+    }
+  ],
+  "logs": []
+}

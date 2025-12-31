@@ -1,0 +1,12 @@
+[dotenv@17.2.3] injecting env (6) from .env -- tip: ??????  suppress all logs with { quiet: true }
+Database connected successfully
+--- ASSETS ---
+COLUMN: id                   | TYPE: integer                        | UDT: int4
+COLUMN: asset_code           | TYPE: character varying              | UDT: varchar
+COLUMN: asset_type           | TYPE: character varying              | UDT: varchar
+COLUMN: geom                 | TYPE: USER-DEFINED                   | UDT: geometry
+COLUMN: length               | TYPE: double precision               | UDT: float8
+COLUMN: width                | TYPE: double precision               | UDT: float8
+COLUMN: zone                 | TYPE: character varying              | UDT: varchar
+COLUMN: ward                 | TYPE: character varying              | UDT: varchar
+COLUMN: created_at           | TYPE: timestamp without time zone    | UDT: timestamp

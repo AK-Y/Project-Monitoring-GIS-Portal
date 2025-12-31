@@ -1,0 +1,30 @@
+[dotenv@17.2.3] injecting env (6) from .env -- tip: ???? prevent committing .env to code: https://dotenvx.com/precommit
+Database connected successfully
+--- PROJECT_ASSETS ---
+COLUMN: id                   | TYPE: integer                        | UDT: int4
+COLUMN: project_id           | TYPE: integer                        | UDT: int4
+COLUMN: asset_id             | TYPE: character varying              | UDT: varchar
+COLUMN: road_taken_over_from | TYPE: character varying              | UDT: varchar
+COLUMN: year_of_taken_over   | TYPE: integer                        | UDT: int4
+COLUMN: history_of_road      | TYPE: text                           | UDT: text
+COLUMN: start_point          | TYPE: text                           | UDT: text
+COLUMN: start_latitude       | TYPE: double precision               | UDT: float8
+COLUMN: start_longitude      | TYPE: double precision               | UDT: float8
+COLUMN: end_point            | TYPE: text                           | UDT: text
+COLUMN: end_latitude         | TYPE: double precision               | UDT: float8
+COLUMN: end_longitude        | TYPE: double precision               | UDT: float8
+COLUMN: length               | TYPE: text                           | UDT: text
+COLUMN: width_of_carriage_way | TYPE: text                           | UDT: text
+COLUMN: width_of_central_verge | TYPE: text                           | UDT: text
+COLUMN: width_of_footpath    | TYPE: text                           | UDT: text
+COLUMN: lhs_green_belt       | TYPE: text                           | UDT: text
+COLUMN: rhs_green_belt       | TYPE: text                           | UDT: text
+COLUMN: street_lights        | TYPE: text                           | UDT: text
+COLUMN: row_width            | TYPE: text                           | UDT: text
+COLUMN: type_of_road         | TYPE: text                           | UDT: text
+COLUMN: paved_portion_lhs    | TYPE: text                           | UDT: text
+COLUMN: paved_portion_rhs    | TYPE: text                           | UDT: text
+COLUMN: cross_section_of_road | TYPE: text                           | UDT: text
+COLUMN: storm_water_drain_lhs | TYPE: text                           | UDT: text
+COLUMN: storm_water_drain_rhs | TYPE: text                           | UDT: text
+COLUMN: created_at           | TYPE: timestamp without time zone    | UDT: timestamp
