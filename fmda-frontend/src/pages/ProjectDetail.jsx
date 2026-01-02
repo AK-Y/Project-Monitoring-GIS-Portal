@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjectDetail, deleteProjectAsset, deletePayment, deleteProgressLog } from "../store/slices/projectSlice";
+import { fetchAssets } from "../store/slices/assetSlice";
 import UpdateProgressModal from "../components/UpdateProgressModal";
 import AddAssetModal from "../components/AddAssetModal";
 import AssetDetailModal from "../components/AssetDetailModal";
@@ -16,6 +17,7 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { current: data } = useSelector((s) => s.projects);
+  const { list: allAssets } = useSelector((s) => s.assets);
   const { user } = useSelector((s) => s.auth);
   const mode = useSelector((s) => s.theme?.mode || 'light');
   const [theme, setTheme] = useState(() => {
@@ -53,7 +55,20 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     dispatch(fetchProjectDetail(id));
+    dispatch(fetchAssets());
   }, [dispatch, id]);
+
+  // Helper to extract Asset IDs from text (fallback)
+  const extractAssetIds = (text) => {
+    if (!text) return [];
+    const regex = /Asset ID:?\s*(\d+)/gi;
+    const ids = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      ids.push(match[1]);
+    }
+    return ids;
+  };
 
   const handleDelete = async () => {
     try {
@@ -158,7 +173,45 @@ const ProjectDetail = () => {
             <div className="text-sm text-slate-500 grid grid-cols-2 gap-x-8 gap-y-1">
               <p>Agency: <span className="font-semibold text-slate-700">{project.name_of_agency || "N/A"}</span></p>
               <p>Project ID: <span className="font-semibold text-indigo-600 font-mono tracking-wide">{project.project_uid || `#${project.id}`}</span></p>
-              <p className="col-span-2 mt-1">Asset IDs: <span className="font-semibold text-sky-600 font-mono tracking-wide bg-sky-50 px-2 py-0.5 rounded">{project.linked_asset_codes?.length > 0 ? project.linked_asset_codes.join(", ") : "N/A"}</span></p>
+              <div className="col-span-2 mt-2 flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Linked Assets:</span>
+                {(() => {
+                  const rawAssetCodes = [
+                    ...(project.linked_asset_codes || []),
+                    ...extractAssetIds(project.name_of_work)
+                  ].map(code => String(code).trim());
+
+                  const groupedCodes = {};
+                  rawAssetCodes.forEach(code => {
+                    const numMatch = code.match(/\d+$/);
+                    const numPart = numMatch ? numMatch[0] : code;
+                    if (!groupedCodes[numPart] || code.length > groupedCodes[numPart].length) {
+                      groupedCodes[numPart] = code;
+                    }
+                  });
+
+                  const allAssetCodes = Object.values(groupedCodes);
+
+                  if (allAssetCodes.length === 0) return <span className="text-slate-400 font-medium italic">None</span>;
+
+                  return allAssetCodes.map((code, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        // Search in project specific assets first, then global cache
+                        const asset = assets.find(a => String(a.asset_code) === String(code) || String(a.id) === String(code))
+                          || allAssets.find(a => String(a.asset_code) === String(code) || String(a.id) === String(code));
+
+                        if (asset) setSelectedAsset(asset);
+                        else console.warn("Asset not found in project or global assets list:", code);
+                      }}
+                      className="bg-sky-50 text-sky-700 font-mono text-xs font-bold px-2 py-0.5 rounded border border-sky-100 hover:bg-sky-600 hover:text-white transition-all shadow-sm active:scale-95"
+                    >
+                      {code}
+                    </button>
+                  ));
+                })()}
+              </div>
             </div>
           </div>
           <div className="flex flex-col items-end gap-4">

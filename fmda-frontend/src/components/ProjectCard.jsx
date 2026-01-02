@@ -2,12 +2,46 @@ import { useNavigate } from "react-router-dom";
 import { TrendingUp, Calendar, Wallet, Clock } from "lucide-react";
 import TimelineWarningBadge from "./TimelineWarningBadge";
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, onAssetClick, onHistoryClick }) => {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
         navigate(`/projects/${project.id}`);
     };
+
+    // Helper to extract Asset IDs from text (fallback)
+    const extractAssetIds = (text) => {
+        if (!text) return [];
+        const regex = /Asset ID:?\s*(\d+)/gi;
+        const ids = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            ids.push(match[1]);
+        }
+        return ids;
+    };
+
+    // Combine all sources of asset identification and normalize
+    const rawAssetIds = [
+        ...(project.asset_ids || []),
+        ...(project.linked_asset_codes || []),
+        ...extractAssetIds(project.name_of_work)
+    ].map(id => String(id).trim());
+
+    // Deduplicate smarter: if we have "A-1083" and "1083", show only "A-1083"
+    const groupedAssets = {};
+    rawAssetIds.forEach(id => {
+        // Extract the numerical part (e.g., "1083")
+        const numMatch = id.match(/\d+$/);
+        const numPart = numMatch ? numMatch[0] : id;
+
+        // Prefer the more descriptive ID (usually the one with a prefix, hence longer)
+        if (!groupedAssets[numPart] || id.length > groupedAssets[numPart].length) {
+            groupedAssets[numPart] = id;
+        }
+    });
+
+    const allAssetIds = Object.values(groupedAssets);
 
     // Parse progress percentages
     const physicalProgress = project.physical_progress
@@ -36,12 +70,16 @@ const ProjectCard = ({ project }) => {
                 {/* LEFT SECTION - Project Info & Financials */}
                 <div className="flex-1 p-5 border-b lg:border-b-0 lg:border-r border-slate-100">
                     {/* Asset IDs */}
-                    {project.asset_ids && project.asset_ids.length > 0 && (
+                    {allAssetIds.length > 0 && (
                         <div className="mb-3 flex flex-wrap gap-1.5">
-                            {project.asset_ids.map((assetId, idx) => (
+                            {allAssetIds.map((assetId, idx) => (
                                 <span
                                     key={idx}
-                                    className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onAssetClick) onAssetClick(assetId);
+                                    }}
+                                    className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 border border-indigo-100/50"
                                 >
                                     Asset ID: {assetId}
                                 </span>
@@ -53,6 +91,7 @@ const ProjectCard = ({ project }) => {
                     <h3 className="font-bold text-slate-800 text-sm leading-tight mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2">
                         {project.name_of_work}
                     </h3>
+                    ...
 
                     {/* Type of Work & Category */}
                     <div className="flex items-center gap-2 flex-wrap mb-4">
@@ -85,9 +124,20 @@ const ProjectCard = ({ project }) => {
                 <div className="flex-1 p-5 border-b lg:border-b-0 lg:border-r border-slate-100">
                     {/* Timeline */}
                     <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Calendar size={14} className="text-slate-400" />
-                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timeline</span>
+                        <div className="flex justify-between items-center mb-3">
+                            <div className="flex items-center gap-2">
+                                <Calendar size={14} className="text-slate-400" />
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timeline</span>
+                            </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onHistoryClick) onHistoryClick(project);
+                                }}
+                                className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline flex items-center gap-1"
+                            >
+                                <Clock size={10} /> View History
+                            </button>
                         </div>
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs">

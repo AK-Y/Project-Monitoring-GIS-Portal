@@ -4,11 +4,16 @@ import { fetchFilteredProjects } from "../store/slices/projectSlice";
 import { useNavigate } from "react-router-dom";
 import TimelineWarningBadge from "../components/TimelineWarningBadge";
 import Pagination from "../components/Pagination";
+import AssetDetailModal from "../components/AssetDetailModal";
+import WorkHistoryModal from "../components/WorkHistoryModal";
+import { fetchAssets } from "../store/slices/assetSlice";
+import { Clock } from "lucide-react";
 
 const AllProjectsPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const filteredProjects = useSelector((s) => s.projects.filtered);
+    const { list: allAssets } = useSelector((s) => s.assets);
     const { user } = useSelector((s) => s.auth);
 
     const [status, setStatus] = useState("");
@@ -16,6 +21,26 @@ const AllProjectsPage = () => {
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
+
+    // Helper to extract Asset IDs from text (fallback)
+    const extractAssetIds = (text) => {
+        if (!text) return [];
+        const regex = /Asset ID:?\s*(\d+)/gi;
+        const ids = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            ids.push(match[1]);
+        }
+        return ids;
+    };
+
+    // Modal states
+    const [selectedAsset, setSelectedAsset] = useState(null);
+    const [selectedProjectForHistory, setSelectedProjectForHistory] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchAssets());
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchFilteredProjects({
@@ -105,20 +130,59 @@ const AllProjectsPage = () => {
                                     >
                                         <td className="px-6 py-4">
                                             {/* Display Asset IDs */}
-                                            {p.asset_ids && p.asset_ids.length > 0 && (
-                                                <div className="mb-2">
-                                                    {p.asset_ids.map((assetId, idx) => (
-                                                        <span
-                                                            key={idx}
-                                                            className="inline-block bg-slate-100 text-slate-700 text-xs font-bold px-2 py-1 rounded mr-1.5 mb-1"
-                                                        >
-                                                            Asset ID {assetId}
-                                                        </span>
-                                                    ))}
+                                            {(() => {
+                                                const rawAssetIds = [
+                                                    ...(p.asset_ids || []),
+                                                    ...(p.linked_asset_codes || []),
+                                                    ...extractAssetIds(p.name_of_work)
+                                                ].map(id => String(id).trim());
+
+                                                const groupedAssets = {};
+                                                rawAssetIds.forEach(id => {
+                                                    const numMatch = id.match(/\d+$/);
+                                                    const numPart = numMatch ? numMatch[0] : id;
+                                                    if (!groupedAssets[numPart] || id.length > groupedAssets[numPart].length) {
+                                                        groupedAssets[numPart] = id;
+                                                    }
+                                                });
+
+                                                const allAssetIds = Object.values(groupedAssets);
+
+                                                if (allAssetIds.length === 0) return null;
+
+                                                return (
+                                                    <div className="mb-2">
+                                                        {allAssetIds.map((assetId, idx) => (
+                                                            <span
+                                                                key={idx}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    const asset = allAssets.find(a => String(a.id) === String(assetId) || a.asset_code === assetId);
+                                                                    if (asset) setSelectedAsset(asset);
+                                                                    else console.warn("Asset not found in local cache:", assetId);
+                                                                }}
+                                                                className="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded mr-1.5 mb-1 cursor-pointer hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95 border border-indigo-100/50"
+                                                            >
+                                                                Asset ID {assetId}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            })()}
+                                            <div className="flex items-center gap-2 group/title">
+                                                <div className="font-bold text-slate-700 group-hover/title:text-indigo-600 transition-colors leading-tight">
+                                                    {p.name_of_work}
                                                 </div>
-                                            )}
-                                            <div className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors leading-tight">
-                                                {p.name_of_work}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedProjectForHistory(p);
+                                                    }}
+                                                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                                    title="View Work History"
+                                                >
+                                                    <Clock size={14} />
+                                                </button>
                                             </div>
                                             <div className="text-xs text-slate-400 mt-1 font-medium">Agency: {p.name_of_agency || 'N/A'}</div>
                                         </td>
@@ -225,6 +289,23 @@ const AllProjectsPage = () => {
                     onPageChange={setCurrentPage}
                 />
             </div>
+
+            {/* Modals */}
+            {selectedAsset && (
+                <AssetDetailModal
+                    asset={selectedAsset}
+                    onClose={() => setSelectedAsset(null)}
+                    canEdit={false}
+                />
+            )}
+
+            {selectedProjectForHistory && (
+                <WorkHistoryModal
+                    projectId={selectedProjectForHistory.id}
+                    projectName={selectedProjectForHistory.name_of_work}
+                    onClose={() => setSelectedProjectForHistory(null)}
+                />
+            )}
         </div>
     );
 };

@@ -2,12 +2,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchFilteredProjects } from "../store/slices/projectSlice";
 import ProjectCard from "../components/ProjectCard";
-import { FileText, Search, Filter } from "lucide-react";
+import { FileText, Search, Filter, Clock } from "lucide-react";
 import Pagination from "../components/Pagination";
+import AssetDetailModal from "../components/AssetDetailModal";
+import WorkHistoryModal from "../components/WorkHistoryModal";
+import { fetchAssets } from "../store/slices/assetSlice";
 
 const ReportsPage = () => {
     const dispatch = useDispatch();
     const filteredProjects = useSelector((s) => s.projects.filtered);
+    const { list: allAssets } = useSelector((s) => s.assets);
 
     const [status, setStatus] = useState("");
     const [workType, setWorkType] = useState("");
@@ -15,6 +19,14 @@ const ReportsPage = () => {
     const [workCategory, setWorkCategory] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
+
+    // Modal states
+    const [selectedAsset, setSelectedAsset] = useState(null);
+    const [selectedProjectForHistory, setSelectedProjectForHistory] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchAssets());
+    }, [dispatch]);
 
     useEffect(() => {
         dispatch(fetchFilteredProjects({
@@ -122,7 +134,23 @@ const ReportsPage = () => {
             {displayedProjects.length > 0 ? (
                 <div className="space-y-4">
                     {displayedProjects.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((project) => (
-                        <ProjectCard key={project.id} project={project} />
+                        <ProjectCard
+                            key={project.id}
+                            project={project}
+                            onAssetClick={(assetId) => {
+                                const asset = allAssets.find(a =>
+                                    String(a.id) === String(assetId) ||
+                                    String(a.asset_code) === String(assetId)
+                                );
+                                if (asset) {
+                                    setSelectedAsset(asset);
+                                } else {
+                                    // Fallback if asset not in cache
+                                    console.warn("Asset not found in local state", assetId);
+                                }
+                            }}
+                            onHistoryClick={(proj) => setSelectedProjectForHistory(proj)}
+                        />
                     ))}
                     <Pagination
                         currentPage={currentPage}
@@ -137,6 +165,23 @@ const ReportsPage = () => {
                     <div className="text-slate-500 font-medium text-lg mb-2">No projects found</div>
                     <div className="text-slate-400 text-sm">Try adjusting your filters or search terms</div>
                 </div>
+            )}
+
+            {/* Modals */}
+            {selectedAsset && (
+                <AssetDetailModal
+                    asset={selectedAsset}
+                    onClose={() => setSelectedAsset(null)}
+                    canEdit={false}
+                />
+            )}
+
+            {selectedProjectForHistory && (
+                <WorkHistoryModal
+                    projectId={selectedProjectForHistory.id}
+                    projectName={selectedProjectForHistory.name_of_work}
+                    onClose={() => setSelectedProjectForHistory(null)}
+                />
             )}
         </div>
     );
