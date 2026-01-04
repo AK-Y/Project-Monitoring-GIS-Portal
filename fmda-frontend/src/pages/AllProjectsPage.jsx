@@ -8,6 +8,8 @@ import AssetDetailModal from "../components/AssetDetailModal";
 import WorkHistoryModal from "../components/WorkHistoryModal";
 import { fetchAssets } from "../store/slices/assetSlice";
 import { Clock } from "lucide-react";
+import AdminOnly from "../components/AdminOnly";
+import OfficerOnly from "../components/OfficerOnly";
 
 const AllProjectsPage = () => {
     const dispatch = useDispatch();
@@ -60,14 +62,14 @@ const AllProjectsPage = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">View and filter all engineering projects</p>
                 </div>
-                {user && user.role !== 'VIEWER' && (
+                <OfficerOnly>
                     <button
                         onClick={() => navigate('/projects/new')}
                         className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:shadow-slate-200 transition-all active:scale-95"
                     >
                         + Create Project
                     </button>
-                )}
+                </OfficerOnly>
             </div>
 
             <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 p-6">

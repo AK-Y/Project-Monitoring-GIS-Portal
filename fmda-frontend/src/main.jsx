@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { store } from "./store";
 import "leaflet/dist/leaflet.css";
 import "./index.css";
+import "./utils/axiosConfig"; // Initialize axios interceptors
 import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(

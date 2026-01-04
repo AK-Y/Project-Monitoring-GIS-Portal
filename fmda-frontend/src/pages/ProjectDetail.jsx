@@ -11,6 +11,8 @@ import ConfirmModal from "../components/ConfirmModal";
 import { deleteProject } from "../store/slices/projectSlice";
 import { Edit3, Trash2, Pencil, Calendar, IndianRupee, Hammer, FileText, Banknote, Clock } from "lucide-react";
 import TimelineWarningBadge from "../components/TimelineWarningBadge";
+import AdminOnly from "../components/AdminOnly";
+import OfficerOnly from "../components/OfficerOnly";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -582,6 +584,17 @@ const ProjectDetail = () => {
 
         {activeTab === "assets" && (
           <div className="space-y-6 animate-fade-in">
+            <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100">
+              <h4 className="text-lg font-bold text-slate-800">Linked Assets</h4>
+              <OfficerOnly>
+                <button
+                  onClick={() => setShowAssetModal(true)}
+                  className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg text-sm font-bold shadow-md transition-colors flex items-center gap-2"
+                >
+                  <span>+</span> Add Asset
+                </button>
+              </OfficerOnly>
+            </div>
             {assets.length > 0 ? (
               assets.map((asset, idx) => (
                 <div
@@ -608,7 +621,7 @@ const ProjectDetail = () => {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border px-2 py-1 rounded border-slate-200 bg-slate-50">
                         {asset.asset_type || "Road Asset"}
                       </span>
-                      {user && user.role !== 'VIEWER' && asset.id && (
+                      {user?.role === 'ADMIN' && asset.id && (
                         <div className="flex gap-3 mt-1">
                           <button
                             onClick={(e) => {
@@ -710,14 +723,14 @@ const ProjectDetail = () => {
 
             <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100">
               <h4 className="text-lg font-bold text-slate-800">Payment History</h4>
-              {user && user.role !== 'VIEWER' && (
+              <OfficerOnly>
                 <button
                   onClick={() => setShowPaymentModal(true)}
                   className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-bold shadow-md transition-colors flex items-center gap-2"
                 >
                   <span>+</span> Add Payment
                 </button>
-              )}
+              </OfficerOnly>
             </div>
 
             {payments.length > 0 ? (
@@ -739,7 +752,7 @@ const ProjectDetail = () => {
                           <p className="font-bold text-2xl text-emerald-600">{formatMoney(pay.amount)}</p>
                           <p className="text-xs text-slate-400 font-bold">Paid (in Lakh)</p>
                         </div>
-                        {user && user.role !== 'VIEWER' && (
+                        {user?.role === 'ADMIN' && (
                           <div className="flex gap-2">
                             <button
                               onClick={() => setPaymentToEdit(pay)}
@@ -842,14 +855,14 @@ const ProjectDetail = () => {
 
                 {/* Actions */}
                 <div className="flex flex-col justify-center gap-3 min-w-[200px]">
-                  {user && user.role !== 'VIEWER' && (
+                  <OfficerOnly>
                     <button
                       onClick={() => setShowProgressModal(true)}
                       className="w-full px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold shadow-xl shadow-slate-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                     >
                       <span>⚡</span> Update Progress
                     </button>
-                  )}
+                  </OfficerOnly>
                   <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-tighter">Maintain regular updates</p>
                 </div>
               </div>
@@ -866,7 +879,7 @@ const ProjectDetail = () => {
                       </h4>
                       <div className="flex items-center gap-4">
                         <span className="text-sm font-bold text-sky-600">{log.physical_progress_percent}% Completed</span>
-                        {user && user.role !== 'VIEWER' && (
+                        {user?.role === 'ADMIN' && (
                           <div className="flex gap-1">
                             <button
                               onClick={() => setProgressToEdit(log)}
@@ -930,7 +943,7 @@ const ProjectDetail = () => {
             setSelectedAsset(null);
             setAssetToDelete(asset);
           }}
-          canEdit={user && user.role !== 'VIEWER'}
+          canEdit={user?.role === 'ADMIN'}
         />
       )}
 

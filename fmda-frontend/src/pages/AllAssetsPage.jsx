@@ -9,6 +9,8 @@ import ConfirmModal from "../components/ConfirmModal";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { deleteGlobalAsset } from "../store/slices/assetSlice";
 import Pagination from "../components/Pagination";
+import AdminOnly from "../components/AdminOnly";
+import OfficerOnly from "../components/OfficerOnly";
 
 const AllAssetsPage = () => {
     const dispatch = useDispatch();
@@ -85,7 +87,7 @@ const AllAssetsPage = () => {
                     </h1>
                     <p className="text-slate-500 mt-1">View and filter all infrastructure assets</p>
                 </div>
-                {user && (
+                <OfficerOnly>
                     <button
                         onClick={() => navigate("/create-asset")}
                         className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all active:scale-95"
@@ -93,7 +95,7 @@ const AllAssetsPage = () => {
                         <Plus size={18} strokeWidth={3} />
                         Add Asset
                     </button>
-                )}
+                </OfficerOnly>
             </div>
 
             <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 p-6">
@@ -188,7 +190,7 @@ const AllAssetsPage = () => {
                                                 </div>
 
                                                 {/* Action Buttons (Admin Only) */}
-                                                {user && user.role !== 'VIEWER' && (
+                                                <AdminOnly>
                                                     <div className="flex gap-3 ml-4">
                                                         <button
                                                             onClick={(e) => {
@@ -211,7 +213,7 @@ const AllAssetsPage = () => {
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>
-                                                )}
+                                                </AdminOnly>
                                             </div>
                                         </td>
                                     </tr>

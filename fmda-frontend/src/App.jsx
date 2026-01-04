@@ -47,6 +47,23 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+// Officer/Admin Route Wrapper
+const OfficerRoute = ({ children }) => {
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const location = useLocation();
+  const officerRoles = ['ADMIN', 'JE', 'SDE', 'XEN', 'OFFICER'];
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (!user || !officerRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -96,11 +113,11 @@ const App = () => {
           {/* Action-based Protected Pages */}
           <Route
             path="projects/new"
-            element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>}
+            element={<OfficerRoute><CreateProjectPage /></OfficerRoute>}
           />
           <Route
             path="create-asset"
-            element={<ProtectedRoute><AddAssetPage /></ProtectedRoute>}
+            element={<OfficerRoute><AddAssetPage /></OfficerRoute>}
           />
           <Route
             path="projects/:id/edit"
