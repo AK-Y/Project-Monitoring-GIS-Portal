@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const financeController = require('../controllers/financeController');
 
-// Finance Dashboard Routes
+// Finance Dashboard Routes - Publically Accessible
 router.get('/summary', financeController.getFinancialSummary);
 router.get('/projects', financeController.getProjectFinancials);
 router.get('/risk-projects', financeController.getRiskProjects);

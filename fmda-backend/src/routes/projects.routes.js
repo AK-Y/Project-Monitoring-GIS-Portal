@@ -1,31 +1,34 @@
 const express = require("express");
 const router = express.Router();
 const projectsController = require("../controllers/projectsController");
+const { authenticateToken, isAdmin, isOfficer } = require("../middleware/authMiddleware");
 
 // /api/projects
 router.get("/dashboard/stats", projectsController.getDashboardStats);
 router.get("/", projectsController.getAllProjects);
 router.get("/:id", projectsController.getProjectById);
 router.get("/asset/:assetId", projectsController.getProjectsByAsset);
-router.post("/:id/progress", projectsController.addProgressLog);
-router.post("/", projectsController.createProject);
-router.post("/:id/assets", projectsController.addProjectAsset);
-router.post("/:id/payments", projectsController.addPayment);
 
-// CRUD Overrides (Admin/Correction)
-router.put("/:id", projectsController.updateProject);
-router.delete("/:id", projectsController.deleteProject);
+// Creation - Officers and Admins
+router.post("/:id/progress", authenticateToken, isOfficer, projectsController.addProgressLog);
+router.post("/", authenticateToken, isOfficer, projectsController.createProject);
+router.post("/:id/assets", authenticateToken, isOfficer, projectsController.addProjectAsset);
+router.post("/:id/payments", authenticateToken, isOfficer, projectsController.addPayment);
 
-// Asset Operations
-router.put("/assets/:assetId", projectsController.updateProjectAsset);
-router.delete("/assets/:assetId", projectsController.deleteProjectAsset);
+// CRUD Overrides - Admin Only (Correction/Delete)
+router.put("/:id", authenticateToken, isAdmin, projectsController.updateProject);
+router.delete("/:id", authenticateToken, isAdmin, projectsController.deleteProject);
 
-// Payment Operations
-router.put("/payments/:paymentId", projectsController.updatePayment);
-router.delete("/payments/:paymentId", projectsController.deletePayment);
+// Asset Operations - Admin Only
+router.put("/assets/:assetId", authenticateToken, isAdmin, projectsController.updateProjectAsset);
+router.delete("/assets/:assetId", authenticateToken, isAdmin, projectsController.deleteProjectAsset);
 
-// Progress Log Operations
-router.put("/progress/:progressId", projectsController.updateProgressLog);
-router.delete("/progress/:progressId", projectsController.deleteProgressLog);
+// Payment Operations - Admin Only
+router.put("/payments/:paymentId", authenticateToken, isAdmin, projectsController.updatePayment);
+router.delete("/payments/:paymentId", authenticateToken, isAdmin, projectsController.deletePayment);
+
+// Progress Log Operations - Admin Only
+router.put("/progress/:progressId", authenticateToken, isAdmin, projectsController.updateProgressLog);
+router.delete("/progress/:progressId", authenticateToken, isAdmin, projectsController.deleteProgressLog);
 
 module.exports = router;
