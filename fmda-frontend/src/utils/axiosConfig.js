@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-// Add a request interceptor
-axios.interceptors.request.use(
+// Create a configured instance
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || '',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add a request interceptor to the instance
+api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -15,18 +23,14 @@ axios.interceptors.request.use(
 );
 
 // Optional: Add a response interceptor to handle token expiration
-axios.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token might be expired or invalid
-      // Optional: Redirect to login or clear session
       console.error('Session expired or unauthorized. Please log in again.');
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-export default axios;
+export default api;

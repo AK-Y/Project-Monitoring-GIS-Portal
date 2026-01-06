@@ -4,6 +4,7 @@ import projectReducer from "./slices/projectSlice";
 import authReducer from "./slices/authSlice";
 import userReducer from "./slices/userSlice";
 import themeReducer from "./slices/themeSlice";
+import fileReducer from "./slices/fileSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     auth: authReducer,
     users: userReducer,
     theme: themeReducer,
+    files: fileReducer,
   },
 });

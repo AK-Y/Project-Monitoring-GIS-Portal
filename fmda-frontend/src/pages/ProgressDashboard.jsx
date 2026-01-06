@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../utils/axiosConfig";
 import { TrendingUp, CheckCircle, Clock, AlertTriangle, Activity, Calendar } from "lucide-react";
 import Pagination from "../components/Pagination";
 
@@ -47,10 +47,10 @@ const ProgressDashboard = () => {
             const projectParams = new URLSearchParams(filters).toString();
 
             const [summaryRes, projectsRes, delayedRes, distRes] = await Promise.all([
-                axios.get(`${import.meta.env.VITE_API_URL}/api/progress/summary?${queryParams}`),
-                axios.get(`${import.meta.env.VITE_API_URL}/api/progress/projects?${projectParams}`),
-                isFirstLoad ? axios.get(`${import.meta.env.VITE_API_URL}/api/progress/delayed`) : Promise.resolve({ data: delayedProjects }),
-                isFirstLoad ? axios.get(`${import.meta.env.VITE_API_URL}/api/progress/distribution`) : Promise.resolve({ data: distribution })
+                axios.get(`/api/progress/summary?${queryParams}`),
+                axios.get(`/api/progress/projects?${projectParams}`),
+                isFirstLoad ? axios.get(`/api/progress/delayed`) : Promise.resolve({ data: delayedProjects }),
+                isFirstLoad ? axios.get(`/api/progress/distribution`) : Promise.resolve({ data: distribution })
             ]);
 
             setSummary(summaryRes.data);

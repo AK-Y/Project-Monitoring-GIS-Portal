@@ -17,6 +17,7 @@ app.use("/api/finance", financeRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/users", require("./routes/users.routes"));
+app.use("/api/files", require("./routes/files.routes"));
 
 app.get("/", (req, res) => {
   res.send("FMDA GIS Backend Running");

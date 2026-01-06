@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import axios from "../utils/axiosConfig";
 import { TrendingUp, IndianRupee, AlertTriangle, Activity, Briefcase } from "lucide-react";
 import Pagination from "../components/Pagination";
 
@@ -42,10 +42,10 @@ const FinanceDashboard = () => {
             // Only fetch distribution and risk projects once or if explicitly needed
             // For now, let's keep it simple but prevent the full page flash
             const [summaryRes, projectsRes, riskRes, distRes] = await Promise.all([
-                axios.get(`${import.meta.env.VITE_API_URL}/api/finance/summary?${queryParams}`),
-                axios.get(`${import.meta.env.VITE_API_URL}/api/finance/projects?${queryParams}`),
-                isFirstLoad ? axios.get(`${import.meta.env.VITE_API_URL}/api/finance/risk-projects`) : Promise.resolve({ data: riskProjects }),
-                isFirstLoad ? axios.get(`${import.meta.env.VITE_API_URL}/api/finance/distribution`) : Promise.resolve({ data: distribution })
+                axios.get(`/api/finance/summary?${queryParams}`),
+                axios.get(`/api/finance/projects?${queryParams}`),
+                isFirstLoad ? axios.get(`/api/finance/risk-projects`) : Promise.resolve({ data: riskProjects }),
+                isFirstLoad ? axios.get(`/api/finance/distribution`) : Promise.resolve({ data: distribution })
             ]);
 
             setSummary(summaryRes.data);

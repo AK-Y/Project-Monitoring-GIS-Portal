@@ -10,6 +10,9 @@ import AdminPanel from "./pages/AdminPanel";
 import MapPage from "./pages/MapPage";
 import ProjectDetail from "./pages/ProjectDetail";
 import LoginPage from "./pages/LoginPage";
+import FilesPage from "./pages/FilesPage";
+import FileDetail from "./pages/FileDetail";
+import CreateFile from "./pages/CreateFile";
 
 import CreateProjectPage from "./pages/CreateProjectPage";
 import EditProjectPage from "./pages/EditProjectPage";
@@ -109,6 +112,11 @@ const App = () => {
           <Route path="progress" element={<ProgressDashboard />} />
           <Route path="map" element={<MapPage />} />
           <Route path="reports" element={<ReportsPage />} />
+
+          {/* File System */}
+          <Route path="files" element={<OfficerRoute><FilesPage /></OfficerRoute>} />
+          <Route path="files/new" element={<OfficerRoute><CreateFile /></OfficerRoute>} />
+          <Route path="files/:id" element={<OfficerRoute><FileDetail /></OfficerRoute>} />
 
           {/* Action-based Protected Pages */}
           <Route

@@ -26,9 +26,9 @@ const LoginPage = () => {
       return;
     }
 
-    // 2. Validate Password
-    if (!PASSWORD_REGEX.test(password)) {
-      setValidationError("Password must be at least 6 characters with 1 letter and 1 number.");
+    // 2. Relaxed Password Validation (at least 6 characters)
+    if (password.length < 6) {
+      setValidationError("Password must be at least 6 characters long.");
       return;
     }
 
@@ -52,8 +52,12 @@ const LoginPage = () => {
 
         {/* Global Error (Backend or Validation) */}
         {(error || validationError) && (
-          <div className="bg-rose-50/50 text-rose-600 p-4 rounded-2xl text-xs font-bold mb-8 border border-rose-100 flex items-center gap-3 animate-fade-in">
-            <span className="text-lg">⚠️</span> {validationError || error}
+          <div className="bg-rose-50/50 text-rose-600 p-4 rounded-2xl text-xs font-bold mb-8 border border-rose-100 flex items-center gap-3 animate-fade-in shadow-sm">
+            <span className="text-lg">⚠️</span>
+            <div className="flex flex-col">
+              <span>{validationError || error}</span>
+              {error === 'Login failed' && <span className="text-[9px] opacity-70 mt-1 uppercase">Please check your internet connection or if the server is offline.</span>}
+            </div>
           </div>
         )}
 

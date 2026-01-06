@@ -78,6 +78,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           <div className="space-y-1">
             <NavItem to="/" icon={LayoutDashboard} label="Dashboard" end />
             <NavItem to="/map" icon={MapIcon} label="City Map" />
+            <NavItem to="/files" icon={ShieldCheck} label="File Approvals" />
             <NavItem to="/reports" icon={FileText} label="Reports" />
           </div>
         </div>

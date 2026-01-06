@@ -1,7 +1,7 @@
 import { X, Calendar, Clock, Hammer, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import axios from "axios";
+import axios from "../utils/axiosConfig";
 
 const WorkHistoryModal = ({ projectId, projectName, onClose }) => {
     const [loading, setLoading] = useState(true);
@@ -10,7 +10,7 @@ const WorkHistoryModal = ({ projectId, projectName, onClose }) => {
     useEffect(() => {
         const fetchHistory = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/projects/${projectId}`);
+                const res = await axios.get(`/api/projects/${projectId}`);
                 setHistory(res.data.progress || []);
             } catch (err) {
                 console.error("Failed to fetch project history", err);

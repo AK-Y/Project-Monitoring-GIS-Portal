@@ -6,7 +6,7 @@ import { fetchProjectsByAsset } from "../store/slices/projectSlice";
 
 const { BaseLayer, Overlay } = LayersControl;
 
-const MapView = () => {
+const MapView = ({ showLegend = true, compact = false }) => {
   const dispatch = useDispatch();
   const assets = useSelector((s) => s.assets.list);
 
@@ -124,42 +124,46 @@ const MapView = () => {
 
   return (
     <div className="relative h-full w-full">
-      {/* Custom Legend / Filter Control - Moved to Top Left to avoid overlap */}
-      <div className="absolute top-4 left-16 z-[1000] glass-panel p-4 rounded-xl shadow-lg w-52 animate-fade-in">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Asset Layers</h4>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.Road}
-              onChange={(e) => setFilters(prev => ({ ...prev, Road: e.target.checked }))}
-              className="rounded text-red-600 focus:ring-red-500"
-            />
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#ff0000" }}></span>
-            <span className="text-sm font-medium text-slate-700">Roads</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.Drain}
-              onChange={(e) => setFilters(prev => ({ ...prev, Drain: e.target.checked }))}
-              className="rounded text-cyan-500 focus:ring-cyan-500"
-            />
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#00ffff" }}></span>
-            <span className="text-sm font-medium text-slate-700">Drains</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.Sewer}
-              onChange={(e) => setFilters(prev => ({ ...prev, Sewer: e.target.checked }))}
-              className="rounded text-green-500 focus:ring-green-500"
-            />
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#00ff00" }}></span>
-            <span className="text-sm font-medium text-slate-700">Sewers</span>
-          </label>
+      {/* Custom Legend / Filter Control */}
+      {showLegend && (
+        <div className={`absolute z-[1000] glass-panel rounded-xl shadow-lg transition-all animate-fade-in ${compact ? 'top-2 right-2 w-32 p-2' : 'top-4 left-16 w-52 p-4'
+          }`}>
+          <h4 className={`font-black text-slate-500 uppercase tracking-widest ${compact ? 'text-[8px] mb-1.5' : 'text-xs mb-3'
+            }`}>Asset Layers</h4>
+          <div className={compact ? "space-y-1" : "space-y-2"}>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.Road}
+                onChange={(e) => setFilters(prev => ({ ...prev, Road: e.target.checked }))}
+                className="rounded text-red-600 focus:ring-red-500"
+              />
+              <span className={`${compact ? 'w-2 h-2' : 'w-3 h-3'} rounded-full`} style={{ backgroundColor: "#ff0000" }}></span>
+              <span className={`${compact ? 'text-[10px]' : 'text-sm'} font-bold text-slate-700`}>Roads</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.Drain}
+                onChange={(e) => setFilters(prev => ({ ...prev, Drain: e.target.checked }))}
+                className="rounded text-cyan-500 focus:ring-cyan-500"
+              />
+              <span className={`${compact ? 'w-2 h-2' : 'w-3 h-3'} rounded-full`} style={{ backgroundColor: "#00ffff" }}></span>
+              <span className={`${compact ? 'text-[10px]' : 'text-sm'} font-bold text-slate-700`}>Drains</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.Sewer}
+                onChange={(e) => setFilters(prev => ({ ...prev, Sewer: e.target.checked }))}
+                className="rounded text-green-500 focus:ring-green-500"
+              />
+              <span className={`${compact ? 'w-2 h-2' : 'w-3 h-3'} rounded-full`} style={{ backgroundColor: "#00ff00" }}></span>
+              <span className={`${compact ? 'text-[10px]' : 'text-sm'} font-bold text-slate-700`}>Sewers</span>
+            </label>
+          </div>
         </div>
-      </div>
+      )}
 
       <MapContainer center={[28.45, 77.3]} zoom={12} className="h-full w-full z-0" zoomControl={false}>
         <ZoomControl position="bottomright" />

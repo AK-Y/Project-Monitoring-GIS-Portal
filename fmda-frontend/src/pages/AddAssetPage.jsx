@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../utils/axiosConfig";
 import { fetchAssets } from "../store/slices/assetSlice";
 import ConfirmModal from "../components/ConfirmModal";
 import { ArrowLeft } from "lucide-react";
@@ -97,7 +97,7 @@ const AddAssetPage = () => {
                 ...formData
             };
 
-            await axios.post(`${import.meta.env.VITE_API_URL}/api/assets`, payload);
+            await axios.post(`/api/assets`, payload);
             dispatch(fetchAssets());
             navigate("/assets");
         } catch (error) {

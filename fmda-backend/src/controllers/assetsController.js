@@ -71,10 +71,13 @@ exports.getAssets = async (req, res) => {
             SELECT project_id as p_id FROM project_asset_links WHERE asset_code = a.asset_code
           ) combined_projects
         )::bigint as project_count,
-        false::boolean as is_synthetic
+        false::boolean as is_synthetic,
+        false::boolean as is_proposed
       FROM assets a
       LEFT JOIN latest_project_assets pa ON a.id::text = pa.asset_id::text
+      
       UNION ALL
+      
       SELECT 
         pa.asset_id::text as id,
         TRIM(pa.asset_id::text)::text as asset_code,
@@ -123,7 +126,8 @@ exports.getAssets = async (req, res) => {
           ))
         END::text as geometry,
         (SELECT COUNT(*) FROM project_assets pa2 WHERE pa2.asset_id::text = pa.asset_id::text)::bigint as project_count,
-        true::boolean as is_synthetic
+        true::boolean as is_synthetic,
+        false::boolean as is_proposed
       FROM latest_project_assets pa
       WHERE pa.start_latitude IS NOT NULL 
       AND pa.start_longitude IS NOT NULL 
@@ -131,6 +135,57 @@ exports.getAssets = async (req, res) => {
       AND pa.end_longitude IS NOT NULL
       AND (pa.start_latitude != pa.end_latitude OR pa.start_longitude != pa.end_longitude)
       AND pa.asset_id::text NOT IN (SELECT id::text FROM assets)
+      
+      UNION ALL
+      
+      SELECT 
+        fa.id::text as id,
+        'PROPOSED'::text as asset_code,
+        'Proposed Work'::text as asset_type,
+        'N/A'::text as length,
+        NULL::text as ward,
+        NULL::text as zone,
+        'PROPOSED'::text as road_taken_over_from,
+        NULL::text as year_of_taken_over,
+        'Proposed under File #' || fa.file_id::text as history_of_road,
+        'Proposed'::text as start_point,
+        fa.start_latitude,
+        fa.start_longitude,
+        'Proposed'::text as end_point,
+        fa.end_latitude,
+        fa.end_longitude,
+        NULL::text as width_of_carriage_way,
+        NULL::text as width_of_central_verge,
+        NULL::text as width_of_footpath,
+        NULL::text as lhs_green_belt,
+        NULL::text as rhs_green_belt,
+        NULL::text as street_lights,
+        NULL::text as row_width,
+        'Proposed'::text as type_of_road,
+        NULL::text as paved_portion_lhs,
+        NULL::text as paved_portion_rhs,
+        NULL::text as cross_section_of_road,
+        NULL::text as storm_water_drain_lhs,
+        NULL::text as storm_water_drain_rhs,
+        COALESCE(fa.location_data, '[]'::jsonb) as vertices,
+        CASE
+          WHEN fa.location_data IS NOT NULL AND jsonb_typeof(fa.location_data) = 'array' AND jsonb_array_length(fa.location_data) >= 2 THEN (
+            SELECT ST_AsGeoJSON(ST_MakeLine(ARRAY(
+              SELECT ST_SetSRID(ST_Point((pt->>0)::float8, (pt->>1)::float8), 4326)
+              FROM jsonb_array_elements(fa.location_data) pt
+            )))
+          )
+          ELSE ST_AsGeoJSON(ST_MakeLine(
+            ST_SetSRID(ST_Point(fa.start_longitude, fa.start_latitude), 4326), 
+            ST_SetSRID(ST_Point(fa.end_longitude, fa.end_latitude), 4326)
+          ))
+        END::text as geometry,
+        0::bigint as project_count,
+        true::boolean as is_synthetic,
+        true::boolean as is_proposed
+      FROM file_assets fa
+      JOIN project_files pf ON fa.file_id = pf.id
+      WHERE pf.status != 'APPROVED'
     `;
     const { rows } = await db.query(query);
     res.json(rows);
